@@ -25,17 +25,18 @@ file1 = open("registered__date.txt", "r")
 registered__date = file1.read()
 file1.close()
 
-if date.today() != datetime.strptime(registered__date, "%Y-%m-%d").date():
+url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
+      "/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv "
+s = requests.get(url).content
+confirmed = pd.read_csv(io.StringIO(s.decode('utf-8')))
+last_update_day = datetime.strptime(confirmed.columns[-1], "%m/%d/%y").date()
 
-    url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
-          "/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv "
-    s = requests.get(url).content
-    confirmed = pd.read_csv(io.StringIO(s.decode('utf-8')))
+if last_update_day != datetime.strptime(registered__date, "%Y-%m-%d").date():
+
     total_countries = confirmed.groupby("Country/Region").sum()
     two_last_days = total_countries[total_countries.columns[-2:]]
     new_cases = two_last_days[two_last_days.columns[-1]] - two_last_days[two_last_days.columns[-2]]
     top_five_countries = new_cases.sort_values(ascending=False).head(5)
-    last_update_day = datetime.strptime(total_countries.columns[-1], "%m/%d/%y").date()
 
     tweet = "{} // COVID-19 NEW CASES TOP 5 COUNTRIES REPORT\n\n".format(last_update_day)
     i = 1
