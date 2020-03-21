@@ -26,7 +26,7 @@ registered__date = file1.read()
 file1.close()
 
 url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
-      "/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv "
+      "/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv"
 s = requests.get(url).content
 confirmed = pd.read_csv(io.StringIO(s.decode('utf-8')))
 last_update_day = datetime.strptime(confirmed.columns[-1], "%m/%d/%y").date()
