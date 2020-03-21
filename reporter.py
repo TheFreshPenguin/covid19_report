@@ -21,7 +21,7 @@ def emoji_face(new_cases_number):
     return '🥺'
 
 
-file1 = open("registered__date.txt", "r")
+file1 = open("registered_date.txt", "r")
 registered__date = file1.read()
 file1.close()
 
