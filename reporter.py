@@ -1,7 +1,7 @@
 import pandas as pd
 import io
 import requests
-from datetime import date, datetime
+from datetime import datetime
 import flag
 import tweepy
 from country_isos import country_isos
@@ -20,16 +20,28 @@ def emoji_face(new_cases_number):
             return emoji_sick_faces[key]
     return '🥺'
 
+
 url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
       "/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv"
+
+# retrieve dataframe
 s = requests.get(url).content
 confirmed = pd.read_csv(io.StringIO(s.decode('utf-8')))
+
+# read the last update date
 last_update_day = datetime.strptime(confirmed.columns[-1], "%m/%d/%y").date()
+
+# group by countries and sum up all provinces
 total_countries = confirmed.groupby("Country/Region").sum()
+
+# compute the new cases since the day before
 two_last_days = total_countries[total_countries.columns[-2:]]
 new_cases = two_last_days[two_last_days.columns[-1]] - two_last_days[two_last_days.columns[-2]]
+
+# get 5 worst countries
 top_five_countries = new_cases.sort_values(ascending=False).head(5)
 
+# build a tweet from scratch
 tweet = "{} // COVID-19 NEW CASES TOP 5 COUNTRIES REPORT\n\n".format(last_update_day)
 i = 1
 for items in top_five_countries.iteritems():
@@ -48,9 +60,11 @@ for items in top_five_countries.iteritems():
                                                           )
     i = i + 1
 
+# authenticate on twitter
 secrets = get_secrets()
 auth = tweepy.OAuthHandler(secrets[0], secrets[1])
 auth.set_access_token(secrets[2], secrets[3])
 
+# send final tweet
 api = tweepy.API(auth)
 api.update_status(tweet)
