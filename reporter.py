@@ -11,16 +11,6 @@ def get_secrets():
     file = open("secrets.txt", "r")
     return file.read().split('\n')
 
-
-def emoji_face(new_cases_number):
-    emoji_sick_faces = {5000: '🤮', 2500: '🤢', 1000: '😷', 500: '🤒'}
-
-    for key in emoji_sick_faces:
-        if new_cases_number >= key:
-            return emoji_sick_faces[key]
-    return '🥺'
-
-
 url = "https://raw.githubusercontent.com/CSSEGISandData/COVID-19/master/csse_covid_19_data" \
       "/csse_covid_19_time_series/time_series_19-covid-Confirmed.csv"
 
@@ -42,7 +32,7 @@ new_cases = two_last_days[two_last_days.columns[-1]] - two_last_days[two_last_da
 top_five_countries = new_cases.sort_values(ascending=False).head(5)
 
 # build a tweet from scratch
-tweet = "{} // COVID-19 NEW CASES TOP 5 COUNTRIES REPORT\n\n".format(last_update_day)
+tweet = "{} // #COVIDー19 NEW CASES TOP 5 COUNTRIES\n\n".format(last_update_day)
 i = 1
 for items in top_five_countries.iteritems():
     country = items[0]
@@ -52,13 +42,15 @@ for items in top_five_countries.iteritems():
     tweet += "{}. {} : +{} {}  +{}% (total: {})\n".format(i,
                                                           flag.flag(country_isos[country]),
                                                           new_cases_number,
-                                                          emoji_face(new_cases_number),
+                                                          '🔺',
                                                           round(
                                                               100 * (new_cases_number / (total - new_cases_number)),
                                                               1),
                                                           total
                                                           )
     i = i + 1
+
+tweet += "\n#coronavirus"
 
 # authenticate on twitter
 secrets = get_secrets()
